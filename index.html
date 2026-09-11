@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070910">
+<title>Misión Lady Miau</title>
+<style>
+:root{
+  --bg:#060810; --bg2:#0d111c; --ink:#f4e8d8; --muted:#c8b7b7;
+  --gold:#e6bd83; --gold2:#9f6e3f; --red:#ef3d57; --red2:#7f1025;
+  --panel:rgba(7,9,16,.87); --line:rgba(230,189,131,.38);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+body{overflow-x:hidden;background:
+radial-gradient(circle at 50% -20%,rgba(102,27,54,.28),transparent 42%),
+linear-gradient(180deg,#0a0d17 0%,#05070c 62%,#020307 100%)}
+button{font:inherit}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+#petals{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff7e9;opacity:.55;animation:twinkle 3.5s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.12;transform:scale(.65)}}
+.petal{position:absolute;top:-10vh;width:var(--pw,8px);height:var(--ph,14px);border-radius:75% 25%;background:linear-gradient(145deg,#ff9bad,#e34c6a 55%,#9d1730);opacity:var(--po,.78);filter:blur(var(--blur,0px));box-shadow:0 0 8px rgba(255,103,132,.12);animation:fall linear forwards;transform-origin:center}
+@keyframes fall{to{transform:translate3d(var(--dx),112vh,0) rotate(700deg);opacity:.08}}
+#app{position:relative;z-index:2;min-height:100svh}
+.screen{display:none;min-height:100svh;width:min(100%,430px);margin:0 auto;padding:24px 18px 30px;position:relative;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.screen.active{display:flex;animation:screenIn .55s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(12px) scale(.992)}to{opacity:1;transform:none}}
+.frame{
+  width:100%; min-height:84svh; position:relative; overflow:hidden;
+  border:1px solid rgba(234,191,132,.54); border-radius:22px;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(54,20,33,.42),transparent 42%),
+    linear-gradient(180deg,rgba(12,15,25,.96),rgba(5,7,12,.97));
+  box-shadow:0 24px 80px rgba(0,0,0,.55), inset 0 0 60px rgba(121,18,40,.08);
+  padding:30px 22px;
+}
+.frame:before,.frame:after{
+ content:"";position:absolute;inset:8px;border:1px solid rgba(199,119,67,.18);border-radius:16px;pointer-events:none
+}
+.corner{position:absolute;width:46px;height:46px;opacity:.68}
+.corner.tl{left:10px;top:10px}.corner.tr{right:10px;top:10px;transform:scaleX(-1)}
+.corner.bl{left:10px;bottom:10px;transform:scaleY(-1)}.corner.br{right:10px;bottom:10px;transform:scale(-1)}
+.kicker{font-size:.72rem;letter-spacing:.22em;color:var(--gold);margin:0 0 12px;text-transform:uppercase}
+h1,h2,h3{margin:0;color:#f1d7ad;font-weight:500}
+h1{font-size:clamp(2.9rem,12vw,4rem);letter-spacing:.04em}
+h2{font-size:clamp(2rem,9vw,3rem)}
+h3{font-size:1.25rem}
+.copy{color:var(--muted);font-size:1rem;line-height:1.58}
+.quote{font-style:italic;color:#e5c3a0}
+.btn{
+ width:100%;max-width:330px;margin:20px auto 0;padding:14px 18px;border-radius:10px;
+ border:1px solid #ff5a71;color:#fff4ef;background:linear-gradient(#41121e,#17080e);
+ letter-spacing:.08em;box-shadow:0 0 0 2px #12070b,0 0 22px rgba(239,61,87,.28),inset 0 0 16px rgba(255,255,255,.025);
+ cursor:pointer;transition:.2s;position:relative;z-index:10
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 0 0 2px #12070b,0 0 28px rgba(239,61,87,.4)}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.progressTop{position:fixed;z-index:12;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(calc(100% - 34px),410px);display:none}
+.progressTop.show{display:block}
+.progressTop small{display:block;text-align:right;color:#9c8b90;font-size:.67rem;margin-bottom:4px}
+.progressRail{height:3px;background:#ffffff16;border-radius:99px;overflow:hidden}
+.progressFill{height:100%;width:16.6%;background:linear-gradient(90deg,var(--red2),var(--red));transition:.35s}
+
+/* Intro */
+.skyline{position:absolute;left:0;right:0;bottom:0;height:34%;opacity:.58;pointer-events:none;z-index:1}
+.moonWrap{width:160px;height:160px;margin:2px auto 16px;position:relative}
+.moonFull{width:160px;height:160px;border-radius:50%;background:
+ radial-gradient(circle at 35% 32%,#fff9e8 0 8%,#ead7ab 30%,#c5a06d 67%,#8a6848 100%);
+ box-shadow:0 0 30px rgba(248,224,166,.28),0 0 80px rgba(248,224,166,.12)}
+.moonFull:before,.moonFull:after{content:"";position:absolute;border-radius:50%;background:rgba(118,92,65,.18)}
+.moonFull:before{width:25px;height:25px;left:39px;top:49px}.moonFull:after{width:16px;height:16px;left:95px;top:77px}
+.ladybug{width:30px;height:30px;border-radius:50%;background:var(--red);margin:10px auto;position:relative;box-shadow:0 0 18px rgba(239,61,87,.25)}
+.ladybug:before{content:"";position:absolute;left:14px;top:2px;width:2px;height:26px;background:#16070c}
+.ladybug i{position:absolute;width:5px;height:5px;border-radius:50%;background:#16070c}
+.ladybug i:nth-child(1){left:5px;top:6px}.ladybug i:nth-child(2){right:5px;top:9px}.ladybug i:nth-child(3){left:7px;bottom:5px}
+.ident{display:inline-block;padding:7px 13px;border:1px solid rgba(239,61,87,.28);border-radius:99px;color:#e2ccb4;font-size:.78rem;letter-spacing:.08em}
+
+/* Objective */
+.objective{text-align:left;border-left:2px solid var(--red);background:rgba(255,255,255,.028);padding:15px;margin:18px 0}
+.objective small{color:var(--gold);letter-spacing:.14em}
+.stat{text-align:left;margin:12px 0}
+.stat label{display:flex;justify-content:space-between;color:#bfaeb0;font-size:.78rem}
+.bar{height:6px;background:#ffffff12;border-radius:99px;margin-top:6px;overflow:hidden}
+.bar b{display:block;height:100%;width:var(--w);background:linear-gradient(90deg,var(--red2),#ff6177);border-radius:99px}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:20px 0}
+.card{height:225px;border:0;background:none;padding:0;perspective:900px;cursor:pointer}
+.cardInner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.card.open .cardInner{transform:rotateY(180deg)}
+.cardFace{position:absolute;inset:0;backface-visibility:hidden;border-radius:15px;border:1px solid rgba(233,82,103,.38);background:
+ linear-gradient(180deg,rgba(64,12,26,.56),rgba(9,10,16,.97));overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px}
+.cardFace:before{content:"";position:absolute;inset:6px;border:1px solid rgba(229,184,122,.2);border-radius:11px}
+.cardFace.back{transform:rotateY(180deg)}
+.paw{font-size:2.2rem;color:#ff4a64;text-shadow:0 0 16px rgba(255,74,100,.25)}
+.cardFace strong{font-size:.88rem;color:#f1d7ad;margin-top:8px}
+.cardFace em{font-size:.68rem;color:#e2a9a7;font-style:normal;margin:7px 0}
+.cardFace small{font-size:.61rem;color:#a7999c;line-height:1.35}
+.art{width:78px;height:88px;margin-bottom:4px;position:relative}
+.art svg{width:100%;height:100%;display:block}
+.counter{font-size:.76rem;color:#9e8f92}
+
+/* Amulet */
+.holdRing{--p:0deg;width:230px;height:230px;border-radius:50%;background:conic-gradient(var(--red) var(--p),rgba(255,255,255,.08) 0);display:grid;place-items:center;margin:10px auto 20px;box-shadow:0 0 40px rgba(239,61,87,.2)}
+.holdRing:before{content:"";position:absolute;width:214px;height:214px;border-radius:50%;background:#090b12}
+.holdBtn{position:relative;z-index:2;width:188px;height:188px;border:0;border-radius:50%;background:
+ radial-gradient(circle at 50% 45%,rgba(83,31,48,.58),rgba(9,11,18,.98));color:var(--gold);cursor:pointer;touch-action:none}
+.holdBtn .crescent{font-size:7rem;line-height:1}
+.holdBtn .miniBug{position:absolute;right:27px;bottom:23px;transform:scale(.65)}
+.lockInfo{border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;color:#b2a7a8;font-size:.82rem;line-height:1.5;background:rgba(255,255,255,.02)}
+.lockInfo b{color:var(--gold)}
+.reveal{display:none}.reveal.show{display:block;animation:screenIn .5s ease}
+.trust{font-size:2.6rem;color:#efcf9f;margin:18px 0}
+.checks{text-align:left;border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:12px 14px;margin-top:18px}
+.checks div{color:#bfb2b5;line-height:1.8}
+.finalVisual{width:100%;height:310px;position:relative;margin-bottom:4px}
+.finalMoon{position:absolute;left:50%;top:0;transform:translateX(-50%);width:170px;height:170px}
+.finalCat{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:138px;height:160px}
+.eiffel{position:absolute;right:24px;bottom:0;width:86px;height:170px;opacity:.78}
+.cherry{position:absolute;left:-8px;top:28px;width:120px;height:120px;opacity:.72}
+.note{font-size:1rem;color:#cbbabc;line-height:1.6}
+.final h2{font-size:2.55rem;margin:14px 0}
+.sig{font-size:.7rem;letter-spacing:.18em;color:#8e7f83;margin-top:16px}
+@media(max-width:360px){.screen{padding-left:12px;padding-right:12px}.frame{padding-left:15px;padding-right:15px}.cards{gap:6px}.card{height:205px}.cardFace strong{font-size:.78rem}.art{width:68px}}
+
+/* V5 polish */
+body{overscroll-behavior:none}
+#veil{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,rgba(99,20,39,.22),rgba(3,4,8,.96));z-index:40;opacity:0;pointer-events:none;transition:opacity .42s ease}
+#veil.on{opacity:1}
+.frame{backdrop-filter:blur(8px)}
+.frame:after{box-shadow:inset 0 0 30px rgba(211,61,84,.05)}
+.introCat{position:absolute;left:18px;bottom:10px;width:92px;height:108px;opacity:.9;animation:catFloat 4s ease-in-out infinite;pointer-events:none;z-index:2}
+@keyframes catFloat{50%{transform:translateY(-3px)}}
+.introCat .eye{animation:blink 5s infinite;transform-origin:center}
+@keyframes blink{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.08)}}
+.ladybug{animation:bugFloat 3.8s ease-in-out infinite}
+@keyframes bugFloat{50%{transform:translateY(-3px) rotate(2deg)}}
+.moonFull{animation:moonBreath 5s ease-in-out infinite}
+@keyframes moonBreath{50%{box-shadow:0 0 40px rgba(248,224,166,.36),0 0 105px rgba(248,224,166,.17)}}
+.card{transition:transform .25s ease,filter .25s ease}
+.card:hover{transform:translateY(-3px)}
+.card.open{filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.card.open .cardFace.back{animation:cardGlow .7s ease}
+@keyframes cardGlow{0%{box-shadow:0 0 0 rgba(239,61,87,0)}60%{box-shadow:0 0 30px rgba(239,61,87,.32)}100%{box-shadow:0 0 0 rgba(239,61,87,0)}}
+.art svg{filter:drop-shadow(0 0 8px rgba(230,189,131,.12))}
+.holdBtn{transition:filter .25s ease,transform .25s ease}
+.holdBtn.charging{filter:drop-shadow(0 0 25px rgba(239,61,87,.45));transform:scale(1.025)}
+.holdBtn.done{filter:drop-shadow(0 0 34px rgba(240,205,147,.5))}
+.crescent{display:inline-block;animation:amuletIdle 4s ease-in-out infinite}
+@keyframes amuletIdle{50%{transform:scale(1.035) rotate(-2deg)}}
+.finalVisual{overflow:visible}
+.finalCat{animation:catFinal 4.5s ease-in-out infinite}
+@keyframes catFinal{50%{transform:translateX(-50%) translateY(-3px)}}
+.final .frame{background:radial-gradient(circle at 50% 24%,rgba(76,29,43,.45),transparent 42%),linear-gradient(180deg,rgba(8,12,21,.97),rgba(4,6,10,.98))}
+.final h2,.final .note,.final .kicker,.final .ladybug,.final .sig{opacity:0;transform:translateY(8px)}
+.final.play .kicker{animation:finalIn .7s .5s forwards}.final.play .note:nth-of-type(2){animation:finalIn .8s 1s forwards}.final.play h2{animation:finalIn .9s 1.6s forwards}.final.play .note:nth-of-type(3){animation:finalIn .8s 2.5s forwards}.final.play .ladybug{animation:finalIn .8s 3.1s forwards}.final.play .sig{animation:finalIn .8s 3.5s forwards}
+@keyframes finalIn{to{opacity:1;transform:none}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(14px);z-index:50;padding:9px 14px;border:1px solid rgba(230,189,131,.28);border-radius:999px;background:rgba(5,7,12,.9);color:#e7cfad;font-size:.76rem;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:390px){
+  .cards{grid-template-columns:1fr;gap:12px}
+  .card{height:142px}
+  .cardFace{padding:10px 12px}
+  .cardFace.back{display:grid;grid-template-columns:80px 1fr;grid-template-rows:auto auto auto;column-gap:10px;text-align:left}
+  .cardFace.back .art{grid-row:1/4;grid-column:1;width:72px;height:86px;margin:0}
+  .cardFace.back strong,.cardFace.back em,.cardFace.back small{grid-column:2;margin-left:0;align-self:center}
+  .cardFace.back strong{font-size:.92rem}.cardFace.back em{font-size:.68rem}.cardFace.back small{font-size:.62rem}
+  .cardFace.front{flex-direction:row;gap:10px}.cardFace.front .paw{font-size:1.8rem}.cardFace.front strong{margin:0}
+}
+
+
+/* V5.1 click-safety fix */
+#intro .kicker,#intro h1,#intro .ladybug,#intro .ident,#intro .copy,#intro .btn,
+#mission .btn,#inventory .btn,#amulet .btn,#effect .btn,#reminder .btn{
+  position:relative;
+  z-index:10;
+}
+.skyline,.introCat,.corner{pointer-events:none}
+
+
+.musicToggle{
+ position:fixed;right:14px;bottom:14px;z-index:70;width:42px;height:42px;border-radius:50%;
+ border:1px solid rgba(230,189,131,.45);background:rgba(7,9,16,.82);color:#f1d7ad;
+ box-shadow:0 6px 24px rgba(0,0,0,.38);display:grid;place-items:center;cursor:pointer;
+ backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:.3s
+}
+.musicToggle.show{opacity:1;pointer-events:auto}
+.musicToggle:active{transform:scale(.95)}
+
+</style>
+</head>
+<body>
+<div id="veil"></div><div id="toast" class="toast"></div>
+<audio id="bgMusic" preload="auto" loop playsinline><source src="assets/la-seine.mp3" type="audio/mpeg"></audio>
+<div id="stars"></div>
+<div id="petals"></div>
+<div class="progressTop" id="progress"><small id="stepText">1/6</small><div class="progressRail"><div class="progressFill" id="progressFill"></div></div></div>
+
+<button id="musicToggle" class="musicToggle" aria-label="Pausar o reproducir música">♫</button>
+<div id="app">
+<section class="screen active" id="intro" data-step="1">
+  <div class="frame">
+    <svg class="corner tl" viewBox="0 0 50 50"><path d="M2 47V15Q2 2 15 2h32M7 33c8-2 13-7 15-15M14 40c3-9 9-15 18-18" fill="none" stroke="#c37945" stroke-width="1.2"/></svg>
+    <svg class="corner tr" viewBox="0 0 50 50"><path d="M2 47V15Q2 2 15 2h32M7 33c8-2 13-7 15-15M14 40c3-9 9-15 18-18" fill="none" stroke="#c37945" stroke-width="1.2"/></svg>
+    <div class="moonWrap"><div class="moonFull"></div></div>
+    <p class="kicker">TRANSMISIÓN RECIBIDA</p>
+    <h1>LADY MIAU</h1>
+    <div class="ladybug"><i></i><i></i><i></i></div>
+    <span class="ident">IDENTIFICADA ✓</span>
+    <p class="copy">Se requiere su presencia para una misión de dificultad considerable.</p>
+    <button class="btn" data-next="mission">ACEPTAR MISIÓN</button>
+    <svg class="introCat" viewBox="0 0 100 120" aria-hidden="true"><path d="M22 43 16 15 38 31M78 43 84 15 62 31" fill="#090b11"/><ellipse cx="50" cy="52" rx="31" ry="29" fill="#090b11"/><ellipse cx="50" cy="93" rx="34" ry="31" fill="#090b11"/><path d="M78 97q25 0 17 19" fill="none" stroke="#090b11" stroke-width="10" stroke-linecap="round"/><ellipse class="eye" cx="39" cy="52" rx="3" ry="5" fill="#dca86f"/><ellipse class="eye" cx="61" cy="52" rx="3" ry="5" fill="#dca86f"/></svg>
+    <svg class="skyline" viewBox="0 0 430 180" preserveAspectRatio="none">
+      <rect width="430" height="180" fill="transparent"/>
+      <g fill="#05070b">
+        <rect x="0" y="135" width="430" height="45"/>
+        <rect x="20" y="110" width="45" height="70"/><polygon points="20,110 42,88 65,110"/>
+        <rect x="78" y="122" width="58" height="58"/><polygon points="78,122 107,97 136,122"/>
+        <rect x="300" y="116" width="60" height="64"/><polygon points="300,116 330,90 360,116"/>
+        <rect x="370" y="130" width="60" height="50"/>
+      </g>
+      <g fill="#c98a4c" opacity=".72">
+        <circle cx="34" cy="137" r="2"/><circle cx="50" cy="137" r="2"/><circle cx="95" cy="144" r="2"/><circle cx="118" cy="144" r="2"/><circle cx="318" cy="141" r="2"/><circle cx="341" cy="141" r="2"/>
+      </g>
+      <g stroke="#12141c" stroke-width="4" fill="none">
+        <path d="M212 180 L238 95 L264 180 M225 135h26 M230 117h16 M238 95l12-39 12 39"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<section class="screen" id="mission" data-step="2">
+ <div class="frame">
+  <div class="ladybug"><i></i><i></i><i></i></div>
+  <p class="kicker">MISIÓN #01</p><h2>EL EXAMEN</h2>
+  <p class="quote">“La fuerza también se encuentra en la calma.”</p>
+  <div class="objective"><small>OBJETIVO</small><p class="copy">Presentar ese examen con toda la concentración, confianza y magia que te caracteriza.</p></div>
+  <div class="stat"><label>Conocimiento <b>100%</b></label><div class="bar"><b style="--w:100%"></b></div></div>
+  <div class="stat"><label>Capacidad <b>100%</b></label><div class="bar"><b style="--w:100%"></b></div></div>
+  <div class="stat"><label>Nervios intentando molestar <b>68%</b></label><div class="bar"><b style="--w:68%"></b></div></div>
+  <button class="btn" data-next="inventory">COMENZAR</button>
+ </div>
+</section>
+
+<section class="screen" id="inventory" data-step="3">
+ <div class="frame">
+  <p class="kicker">INVENTARIO</p><h2>DESCUBRE TUS OBJETOS</h2><p class="copy">Toca cada carta para descubrir qué llevas contigo.</p>
+  <div class="cards">
+   <button class="card" data-card="cat"><span class="cardInner">
+    <span class="cardFace front"><span class="paw">🐾</span><strong>OBJETO I</strong></span>
+    <span class="cardFace back">
+      <span class="art">
+      <svg viewBox="0 0 100 110">
+        <path d="M23 40 18 13 38 28M77 40 82 13 62 28" fill="#11131a" stroke="#d58562" stroke-width="2"/>
+        <ellipse cx="50" cy="48" rx="31" ry="28" fill="#11131a" stroke="#d58562" stroke-width="2"/>
+        <circle cx="39" cy="48" r="3" fill="#e7b06f"/><circle cx="61" cy="48" r="3" fill="#e7b06f"/>
+        <path d="M46 58q4 5 8 0" fill="none" stroke="#d58562" stroke-width="2"/>
+        <ellipse cx="50" cy="88" rx="29" ry="24" fill="#11131a" stroke="#d58562" stroke-width="2"/>
+        <path d="M78 84q25 4 15 20" fill="none" stroke="#11131a" stroke-width="9" stroke-linecap="round"/>
+      </svg></span>
+      <strong>GATO DE COMPAÑÍA</strong><em>+10 tranquilidad</em><small>El guardián aprueba esta decisión.</small>
+    </span></span></button>
+
+   <button class="card" data-card="katana"><span class="cardInner">
+    <span class="cardFace front"><span class="paw">🐾</span><strong>OBJETO II</strong></span>
+    <span class="cardFace back">
+      <span class="art">
+      <svg viewBox="0 0 100 110">
+        <path d="M23 91 76 22" stroke="#e8c789" stroke-width="7" stroke-linecap="round"/>
+        <path d="M27 94 20 101" stroke="#3d1b23" stroke-width="11" stroke-linecap="round"/>
+        <path d="M18 83 34 96" stroke="#c98a4c" stroke-width="4"/>
+        <path d="M72 25q13 5 19-4" fill="none" stroke="#d93d55" stroke-width="4"/>
+      </svg></span>
+      <strong>KATANA IMAGINARIA</strong><em>+20 contra preguntas ofensivas</em><small>Utilidad académica: cuestionable.<br>Utilidad emocional: sorprendentemente alta.</small>
+    </span></span></button>
+
+   <button class="card" data-card="amulet"><span class="cardInner">
+    <span class="cardFace front"><span class="paw">🐾</span><strong>OBJETO III</strong></span>
+    <span class="cardFace back">
+      <span class="art">
+      <svg viewBox="0 0 100 110">
+        <path d="M50 3v17" stroke="#c99758" stroke-width="3"/><circle cx="50" cy="23" r="6" fill="none" stroke="#c99758" stroke-width="2"/>
+        <path d="M69 32a28 28 0 1 0 0 48 22 22 0 1 1 0-48Z" fill="#f2d4a2" stroke="#c99758" stroke-width="2"/>
+        <circle cx="68" cy="61" r="12" fill="#e63b55"/>
+        <path d="M68 49v24" stroke="#16070c" stroke-width="2"/>
+        <circle cx="62" cy="56" r="2.5" fill="#16070c"/><circle cx="74" cy="59" r="2.5" fill="#16070c"/><circle cx="63" cy="66" r="2.5" fill="#16070c"/>
+      </svg></span>
+      <strong>AMULETO LUNAR</strong><em>Origen: confidencial</em><small>Hay cosas que funcionan cuando crees en ellas.</small>
+    </span></span></button>
+  </div>
+  <p class="counter" id="counter">0/3 objetos descubiertos</p>
+  <button class="btn" id="equip" disabled>EQUIPAR AMULETO</button>
+ </div>
+</section>
+
+<section class="screen" id="amulet" data-step="4">
+ <div class="frame">
+  <p class="kicker">AMULETO LUNAR</p><h2 id="holdTitle">ACTÍVALO</h2>
+  <p class="copy" id="holdCopy">Mantén presionada la luna durante dos segundos.</p>
+  <div class="holdRing" id="holdRing">
+    <button class="holdBtn" id="holdBtn" aria-label="Mantener presionada la luna">
+      <span class="crescent">☾</span>
+      <span class="ladybug miniBug"><i></i><i></i><i></i></span>
+    </button>
+  </div>
+  <div class="reveal" id="linked">
+    <div class="lockInfo"><b>VÍNCULO ESTABLECIDO</b><br><br>Origen del objeto: <b>S. G.</b><br>Duración: hasta que termine la misión.<br>Efecto: <b>???</b></div>
+    <p class="copy"><b>Miau.</b><br><small>Traducción: estaba seguro de que podrías.</small></p>
+    <button class="btn" data-next="effect">DESCUBRIR EFECTO</button>
+  </div>
+ </div>
+</section>
+
+<section class="screen" id="effect" data-step="5">
+ <div class="frame">
+  <p class="kicker">EFECTO DEL AMULETO</p><h2>RECORDARTE ALGO</h2>
+  <p class="copy">Hay cosas que ningún amuleto puede hacer.<br><br>No puede responder el examen por ti.<br>No puede decirte qué preguntas vendrán.<br><br>Pero sí puede recordarte algo.</p>
+  <div class="trust">Confío en ti.</div>
+  <p class="copy">No porque necesites que alguien venga a decirte que puedes… sino porque, entre tantos nervios y preguntas, no está de más que alguien te lo recuerde.</p>
+  <p class="copy"><b>Ve con calma, Lady Miau. Una pregunta a la vez.</b></p>
+  <button class="btn" data-next="reminder">SEGUIR</button>
+ </div>
+</section>
+
+<section class="screen" id="reminder" data-step="6">
+ <div class="frame">
+  <p class="kicker">UN ÚLTIMO RECORDATORIO</p>
+  <div class="art" style="margin:4px auto 0;width:96px;height:104px">
+   <svg viewBox="0 0 100 110">
+    <path d="M23 40 18 13 38 28M77 40 82 13 62 28" fill="#101219" stroke="#d58562" stroke-width="2"/>
+    <ellipse cx="50" cy="48" rx="31" ry="28" fill="#101219" stroke="#d58562" stroke-width="2"/>
+    <path d="M46 58q4 5 8 0" fill="none" stroke="#d58562" stroke-width="2"/>
+    <ellipse cx="50" cy="88" rx="29" ry="24" fill="#101219" stroke="#d58562" stroke-width="2"/>
+   </svg>
+  </div>
+  <p class="copy">Si aparece una pregunta particularmente horrible…<br><br>recuerda que tienes una <b>katana imaginaria.</b><br><br>No ayudará absolutamente en nada.<br><b>Pero moralmente, estamos mejor preparados.</b></p>
+  <div class="checks"><div>☑ Preparar la misión</div><div>☐ Presentar el examen</div><div>☐ Avisarle a cierto caballero que sobreviviste</div></div>
+  <button class="btn" id="finish">TERMINAR MISIÓN</button>
+ </div>
+</section>
+
+<section class="screen final" id="final" data-step="6">
+ <div class="frame">
+  <div class="finalVisual">
+   <div class="moonFull finalMoon"></div>
+   <svg class="eiffel" viewBox="0 0 100 180"><g fill="none" stroke="#b97145" stroke-width="3"><path d="M50 5 25 175M50 5l25 170M32 130h36M37 98h26M41 72h18M22 175h56"/></g></svg>
+   <svg class="cherry" viewBox="0 0 120 120">
+     <path d="M2 115Q20 60 65 22M28 72Q50 58 74 49M48 47Q65 40 84 20" fill="none" stroke="#5c2830" stroke-width="5"/>
+     <g fill="#e75d7a"><circle cx="70" cy="18" r="6"/><circle cx="79" cy="26" r="5"/><circle cx="83" cy="18" r="4"/><circle cx="54" cy="47" r="6"/><circle cx="62" cy="54" r="5"/><circle cx="73" cy="47" r="4"/></g>
+   </svg>
+   <svg class="finalCat" viewBox="0 0 150 170">
+     <path d="M35 65 27 22 58 45M115 65 123 22 92 45" fill="#0c0e14"/>
+     <ellipse cx="75" cy="75" rx="47" ry="42" fill="#0c0e14"/>
+     <ellipse cx="75" cy="135" rx="55" ry="48" fill="#0c0e14"/>
+     <path d="M120 135q35 0 22 30" fill="none" stroke="#0c0e14" stroke-width="13" stroke-linecap="round"/>
+   </svg>
+  </div>
+  <p class="kicker">P. D.</p>
+  <p class="note">Por si los nervios intentan hacerte olvidar algo importante:</p>
+  <h2>Puedes con esto,<br>Lady Miau.</h2>
+  <p class="note">Y sí… cierto caballero está muy seguro de ello. ☾</p>
+  <div class="ladybug"><i></i><i></i><i></i></div>
+  <div class="sig">MISIÓN EN CURSO…</div>
+ </div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+const screens=[...document.querySelectorAll(".screen")];
+const progress=document.getElementById("progress"),fill=document.getElementById("progressFill"),stepText=document.getElementById("stepText");
+const veil=document.getElementById("veil"),toast=document.getElementById("toast"),finalScreen=document.getElementById("final");
+let current="intro", transitioning=false, toastTimer=0;
+const bgMusic=document.getElementById("bgMusic"),musicToggle=document.getElementById("musicToggle");
+let musicStarted=false;
+bgMusic.volume=.28;
+function startMusic(){
+ if(musicStarted)return;
+ musicStarted=true;
+ bgMusic.play().then(()=>{musicToggle.classList.add("show");musicToggle.textContent="♫"}).catch(()=>{musicStarted=false});
+}
+musicToggle.addEventListener("click",()=>{
+ if(bgMusic.paused){bgMusic.play();musicToggle.textContent="♫";say("Música activada",800)}
+ else{bgMusic.pause();musicToggle.textContent="♪";say("Música en pausa",800)}
+});
+function say(t,ms=1500){toast.textContent=t;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),ms)}
+function buzz(p=18){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function updateProgress(id){
+ const el=document.getElementById(id),step=Number(el.dataset.step||1);
+ if(id==="intro"||id==="final")progress.classList.remove("show");
+ else{progress.classList.add("show");stepText.textContent=step+"/6";fill.style.width=(step/6*100)+"%"}
+}
+function show(id){
+ if(transitioning||id===current)return;
+ transitioning=true;veil.classList.add("on");
+ setTimeout(()=>{
+   screens.forEach(x=>x.classList.remove("active"));
+   const target=document.getElementById(id);target.classList.add("active");current=id;updateProgress(id);window.scrollTo(0,0);
+   if(id==="final"){finalScreen.classList.remove("play");requestAnimationFrame(()=>finalScreen.classList.add("play"));burst(36)}
+   requestAnimationFrame(()=>{veil.classList.remove("on");setTimeout(()=>transitioning=false,430)});
+ },330)
+}
+document.querySelectorAll("[data-next]").forEach(btn=>btn.addEventListener("click",()=>{
+ buzz();
+ if(btn.dataset.next==="mission")startMusic();
+ show(btn.dataset.next);
+}));
+
+const cards=[...document.querySelectorAll(".card")],opened=new Set(),equip=document.getElementById("equip"),counter=document.getElementById("counter");
+cards.forEach(card=>card.addEventListener("click",()=>{
+ if(card.classList.contains("open"))return;
+ card.classList.add("open");opened.add(card.dataset.card);buzz(18);burst(5);
+ counter.textContent=opened.size+"/3 objetos descubiertos";
+ if(opened.size===1)say("Primer objeto descubierto ✦");
+ if(opened.size===2)say("Falta uno…");
+ if(opened.size===3){counter.textContent="Inventario completo ✓";equip.disabled=false;say("Inventario completo. Amuleto disponible.",1800)}
+}));
+equip.addEventListener("click",()=>{if(!equip.disabled){buzz();show("amulet")}});
+
+const holdBtn=document.getElementById("holdBtn"),ring=document.getElementById("holdRing"),copy=document.getElementById("holdCopy"),title=document.getElementById("holdTitle"),linked=document.getElementById("linked");
+let holdStart=0,raf=0,done=false,activePointer=false;
+function renderCharge(now){
+ if(!activePointer||done)return;
+ const q=Math.min((now-holdStart)/2000,1);ring.style.setProperty("--p",(q*360)+"deg");copy.textContent="Activando… "+Math.round(q*100)+"%";
+ if(q<1)raf=requestAnimationFrame(renderCharge);else complete();
+}
+function begin(e){
+ if(done||activePointer)return;
+ e.preventDefault();activePointer=true;holdStart=performance.now();holdBtn.classList.add("charging");buzz(12);raf=requestAnimationFrame(renderCharge);
+}
+function cancel(e){
+ if(done||!activePointer)return;
+ if(e)e.preventDefault();activePointer=false;cancelAnimationFrame(raf);ring.style.setProperty("--p","0deg");copy.textContent="Mantén presionada la luna durante dos segundos.";holdBtn.classList.remove("charging");say("Un poquito más…",900)
+}
+function complete(){
+ done=true;activePointer=false;cancelAnimationFrame(raf);ring.style.setProperty("--p","360deg");holdBtn.classList.remove("charging");holdBtn.classList.add("done");title.textContent="VÍNCULO ESTABLECIDO";copy.textContent="Amuleto activado ✓";linked.classList.add("show");buzz([30,45,90]);burst(18);say("Vínculo establecido ✦",1600)
+}
+// Pointer Events only: avoids duplicate pointer+touch firing on Chrome/Android.
+holdBtn.addEventListener("pointerdown",begin,{passive:false});
+holdBtn.addEventListener("pointerup",cancel,{passive:false});
+holdBtn.addEventListener("pointerleave",cancel,{passive:false});
+holdBtn.addEventListener("pointercancel",cancel,{passive:false});
+holdBtn.addEventListener("contextmenu",e=>e.preventDefault());
+
+document.getElementById("finish").addEventListener("click",()=>{buzz([20,35,50]);show("final")});
+function burst(n=18){
+ const box=document.getElementById("petals");
+ for(let i=0;i<n;i++)setTimeout(()=>{
+   const p=document.createElement("i");p.className="petal";
+   const near=Math.random()<.22, mid=!near&&Math.random()<.48;
+   const w=near?14+Math.random()*10:(mid?9+Math.random()*7:5+Math.random()*5);
+   p.style.left=(-4+Math.random()*108)+"vw";
+   p.style.animationDuration=(near?3.8+Math.random()*2.4:5.5+Math.random()*4)+"s";
+   p.style.setProperty("--dx",(Math.random()*240-120)+"px");
+   p.style.setProperty("--pw",w+"px");p.style.setProperty("--ph",(w*1.65)+"px");
+   p.style.setProperty("--po",near?".88":(mid?".76":".58"));
+   p.style.setProperty("--blur",near?(Math.random()*1.4)+".px":"0px");
+   box.appendChild(p);setTimeout(()=>p.remove(),10500)
+ },i*55)
+}
+const stars=document.getElementById("stars");
+for(let i=0;i<110;i++){
+ const s=document.createElement("i");s.className="star";s.style.left=Math.random()*100+"%";s.style.top=Math.random()*100+"%";s.style.animationDelay=(Math.random()*3.5)+"s";s.style.transform="scale("+(0.45+Math.random()*1.25)+")";stars.appendChild(s)
+}
+
+setInterval(()=>{
+ if(current!=="intro"){
+   const box=document.getElementById("petals"),p=document.createElement("i");p.className="petal";
+   const near=Math.random()<.18,w=near?15+Math.random()*8:6+Math.random()*7;
+   p.style.left=Math.random()*100+"vw";p.style.animationDuration=(near?4.5:6.5+Math.random()*3)+"s";
+   p.style.setProperty("--dx",(Math.random()*220-110)+"px");p.style.setProperty("--pw",w+"px");
+   p.style.setProperty("--ph",(w*1.65)+"px");p.style.setProperty("--po",near?".82":".62");
+   p.style.setProperty("--blur",near?".7px":"0px");box.appendChild(p);setTimeout(()=>p.remove(),10500);
+ }
+},650);
+
+updateProgress("intro");
+})();
+</script>
+</body>
+</html>
