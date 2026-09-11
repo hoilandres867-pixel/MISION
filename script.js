@@ -1,0 +1,17 @@
+const scenes=[...document.querySelectorAll(".scene")],progress=document.getElementById("progress"),ptext=document.getElementById("ptext"),pbar=document.getElementById("pbar");
+function go(id){scenes.forEach(s=>s.classList.toggle("active",s.id===id));let s=+document.getElementById(id).dataset.step;ptext.textContent=s+"/6";pbar.style.width=(s/6*100)+"%";progress.classList.toggle("show",id!=="intro"&&id!=="final");scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>go(b.dataset.next));
+const opened=new Set(),equip=document.getElementById("equip"),count=document.getElementById("count");
+document.querySelectorAll(".card").forEach(c=>c.onclick=()=>{if(!c.classList.contains("open")){c.classList.add("open");opened.add(c.dataset.card);if(navigator.vibrate)navigator.vibrate(18);count.textContent=opened.size+"/3 objetos descubiertos";if(opened.size===3){equip.disabled=false;equip.classList.remove("locked");count.textContent="Inventario completo ✓"}}});
+equip.onclick=()=>opened.size===3&&go("amulet");
+const ring=document.getElementById("ring"),hold=document.getElementById("hold"),status=document.getElementById("holdstatus"),after=document.getElementById("afterhold");let raf,start=0,done=false;
+function tick(t){if(!start)start=t;let q=Math.min((t-start)/2000,1);ring.style.setProperty("--p",(q*360)+"deg");status.textContent=q<1?"Activando… "+Math.round(q*100)+"%":"VÍNCULO ESTABLECIDO";if(q<1)raf=requestAnimationFrame(tick);else complete()}
+function begin(e){if(done)return;e.preventDefault();start=0;raf=requestAnimationFrame(tick)}
+function cancel(){if(done)return;cancelAnimationFrame(raf);start=0;ring.style.setProperty("--p","0deg");status.textContent="Mantén presionada la luna durante dos segundos."}
+function complete(){done=true;cancelAnimationFrame(raf);ring.style.setProperty("--p","360deg");document.getElementById("holdtitle").textContent="VÍNCULO ESTABLECIDO";after.classList.remove("hidden");if(navigator.vibrate)navigator.vibrate([35,50,80])}
+["pointerdown","touchstart"].forEach(e=>hold.addEventListener(e,begin,{passive:false}));["pointerup","pointerleave","pointercancel","touchend","touchcancel"].forEach(e=>hold.addEventListener(e,cancel,{passive:false}));
+function petals(){let box=document.getElementById("petals");for(let i=0;i<38;i++){let p=document.createElement("i");p.className="petal";p.style.left=Math.random()*100+"vw";p.style.animationDuration=(5+Math.random()*5)+"s";p.style.animationDelay=Math.random()*1.8+"s";p.style.setProperty("--drift",(Math.random()*180-90)+"px");box.appendChild(p);setTimeout(()=>p.remove(),12000)}}
+document.getElementById("finish").onclick=()=>{go("final");petals()};
+const c=document.getElementById("sky"),x=c.getContext("2d");let stars=[];
+function resize(){let d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;c.style.width=innerWidth+"px";c.style.height=innerHeight+"px";x.setTransform(d,0,0,d,0,0);stars=Array.from({length:Math.max(65,innerWidth*innerHeight/11000)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.1+.2,a:Math.random()*.5+.15,s:Math.random()*.005+.002}))}
+function draw(t=0){x.clearRect(0,0,innerWidth,innerHeight);stars.forEach(q=>{x.beginPath();x.arc(q.x,q.y,q.r,0,7);x.fillStyle=`rgba(255,238,220,${Math.max(.05,q.a+Math.sin(t*q.s+q.x)*.12)})`;x.fill()});requestAnimationFrame(draw)}resize();addEventListener("resize",resize);requestAnimationFrame(draw);
